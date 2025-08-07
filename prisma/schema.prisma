@@ -1,0 +1,137 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String      @id @default(uuid())
+  email       String      @unique
+  name        String
+  timezone    String      @default("UTC")
+  portfolios  Portfolio[]
+  alerts      Alert[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("users")
+}
+
+model Portfolio {
+  id          String           @id @default(uuid())
+  userId      String
+  name        String
+  currency    String           @default("USD")
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  positions   StockPosition[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@map("portfolios")
+}
+
+model Stock {
+  symbol       String           @id
+  name         String
+  exchange     String
+  sector       String?
+  industry     String?
+  marketCap    BigInt?
+  peRatio      Float?
+  logoUrl      String?
+  description  String?
+  positions    StockPosition[]
+  priceHistory PriceHistory[]
+  alerts       Alert[]
+  updatedAt    DateTime         @updatedAt
+
+  @@map("stocks")
+}
+
+model StockPosition {
+  id           String       @id @default(uuid())
+  portfolioId  String
+  stockSymbol  String
+  quantity     Float
+  averagePrice Float
+  purchaseDate DateTime
+  targetPrice  Float?
+  stopLoss     Float?
+  notes        String?
+  portfolio    Portfolio    @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  stock        Stock        @relation(fields: [stockSymbol], references: [symbol])
+  transactions Transaction[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@unique([portfolioId, stockSymbol])
+  @@map("stock_positions")
+}
+
+model Transaction {
+  id              String        @id @default(uuid())
+  stockPositionId String
+  type            TransactionType
+  quantity        Float
+  price           Float
+  fees            Float         @default(0)
+  notes           String?
+  stockPosition   StockPosition @relation(fields: [stockPositionId], references: [id], onDelete: Cascade)
+  timestamp       DateTime      @default(now())
+
+  @@map("transactions")
+}
+
+model PriceHistory {
+  id          String   @id @default(uuid())
+  stockSymbol String
+  timestamp   DateTime
+  open        Float
+  high        Float
+  low         Float
+  close       Float
+  volume      BigInt
+  interval    String
+  stock       Stock    @relation(fields: [stockSymbol], references: [symbol], onDelete: Cascade)
+
+  @@unique([stockSymbol, timestamp, interval])
+  @@index([stockSymbol, timestamp])
+  @@map("price_history")
+}
+
+model Alert {
+  id            String      @id @default(uuid())
+  userId        String
+  stockSymbol   String
+  conditionType AlertType
+  threshold     Float
+  isActive      Boolean     @default(true)
+  triggeredAt   DateTime?
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stock         Stock       @relation(fields: [stockSymbol], references: [symbol])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@map("alerts")
+}
+
+enum TransactionType {
+  BUY
+  SELL
+}
+
+enum AlertType {
+  PRICE_ABOVE
+  PRICE_BELOW
+  PERCENT_CHANGE
+  VOLUME_SPIKE
+}
