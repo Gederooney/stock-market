@@ -1,6 +1,7 @@
 import { z } from 'zod';
+import { env } from '@/lib/env';
 
-const API_KEY = process.env.ALPHA_VANTAGE_API_KEY || 'demo';
+const API_KEY = env.get('ALPHA_VANTAGE_API_KEY') || 'demo';
 const BASE_URL = 'https://www.alphavantage.co/query';
 
 export const QuoteSchema = z.object({
