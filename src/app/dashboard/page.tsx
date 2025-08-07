@@ -1,6 +1,15 @@
-import { TrendingUp, DollarSign, Activity, PieChart } from 'lucide-react';
+import { auth } from '@/auth';
+import { redirect } from 'next/navigation';
+import { TrendingUp, DollarSign, Activity, PieChart, LogOut, Plus } from 'lucide-react';
+import Link from 'next/link';
 
-export default function Home() {
+export default async function DashboardPage() {
+  const session = await auth();
+  
+  if (!session?.user) {
+    redirect('/auth/signin');
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <header className="border-b bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm">
@@ -10,16 +19,31 @@ export default function Home() {
               <TrendingUp className="h-8 w-8 text-green-600" />
               <h1 className="text-2xl font-bold">Stock Market Dashboard</h1>
             </div>
-            <nav className="flex gap-6">
-              <a href="/portfolios" className="hover:text-green-600 transition-colors">Portfolios</a>
-              <a href="/watchlist" className="hover:text-green-600 transition-colors">Watchlist</a>
-              <a href="/alerts" className="hover:text-green-600 transition-colors">Alerts</a>
-            </nav>
+            <div className="flex items-center gap-6">
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {session.user.email}
+              </span>
+              <form action={async () => {
+                'use server';
+                const { signOut } = await import('@/auth');
+                await signOut();
+              }}>
+                <button className="flex items-center gap-2 text-red-600 hover:text-red-700">
+                  <LogOut className="h-4 w-4" />
+                  Sign Out
+                </button>
+              </form>
+            </div>
           </div>
         </div>
       </header>
 
       <main className="container mx-auto px-6 py-12">
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold mb-2">Welcome back, {session.user.name}!</h2>
+          <p className="text-gray-600 dark:text-gray-400">Here's your portfolio overview</p>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between mb-2">
@@ -59,13 +83,19 @@ export default function Home() {
         </div>
 
         <div className="bg-white dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold mb-4">Welcome to Stock Market Dashboard</h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Start by creating your first portfolio to track your investments in real-time.
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-semibold">Your Portfolios</h3>
+            <Link 
+              href="/portfolios/new"
+              className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+              Create Portfolio
+            </Link>
+          </div>
+          <p className="text-gray-600 dark:text-gray-400">
+            You don't have any portfolios yet. Create your first portfolio to start tracking your investments.
           </p>
-          <button className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
-            Create First Portfolio
-          </button>
         </div>
       </main>
     </div>
