@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { Toaster } from "sonner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { EnvStatus } from "@/components/EnvStatus";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,6 +35,7 @@ export default function RootLayout({
           <Providers>{children}</Providers>
         </ErrorBoundary>
         <Toaster richColors position="top-center" />
+        <EnvStatus />
       </body>
     </html>
   );
