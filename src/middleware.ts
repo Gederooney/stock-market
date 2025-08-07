@@ -1,8 +1,38 @@
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 import NextAuth from 'next-auth';
 import { authConfig } from '@/auth.config';
+import { withRateLimit, getIdentifier } from '@/lib/rateLimiter';
 
-export default NextAuth(authConfig).auth;
+const authMiddleware = NextAuth(authConfig).auth;
+
+export default async function middleware(request: NextRequest) {
+  // Apply auth middleware first
+  const authResponse = await authMiddleware(request, NextResponse.next());
+  
+  // Apply rate limiting to API routes
+  if (request.nextUrl.pathname.startsWith('/api')) {
+    // Determine rate limiter type based on route
+    let limiterType: 'api' | 'auth' | 'stockApi' | 'portfolio' = 'api';
+    
+    if (request.nextUrl.pathname.includes('/auth')) {
+      limiterType = 'auth';
+    } else if (request.nextUrl.pathname.includes('/stock')) {
+      limiterType = 'stockApi';
+    } else if (request.nextUrl.pathname.includes('/portfolio')) {
+      limiterType = 'portfolio';
+    }
+    
+    return withRateLimit(
+      request,
+      async () => authResponse || NextResponse.next(),
+      limiterType
+    );
+  }
+  
+  return authResponse || NextResponse.next();
+}
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)', '/'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)', '/'],
 };
