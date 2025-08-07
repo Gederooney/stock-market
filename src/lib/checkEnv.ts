@@ -12,7 +12,7 @@ export function checkEnvironment() {
   
   if (errors && process.env.NODE_ENV === 'development') {
     console.warn('⚠️  Environment validation warnings:');
-    errors.errors.forEach(err => {
+    errors.issues.forEach((err: any) => {
       console.warn(`  - ${err.path.join('.')}: ${err.message}`);
     });
     console.warn('\nSome features may not work correctly.');

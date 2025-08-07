@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { TrendingUp, DollarSign, Activity, PieChart } from 'lucide-react';
 
 export default function Home() {
@@ -11,9 +12,9 @@ export default function Home() {
               <h1 className="text-2xl font-bold">Stock Market Dashboard</h1>
             </div>
             <nav className="flex gap-6">
-              <a href="/portfolios" className="hover:text-green-600 transition-colors">Portfolios</a>
-              <a href="/watchlist" className="hover:text-green-600 transition-colors">Watchlist</a>
-              <a href="/alerts" className="hover:text-green-600 transition-colors">Alerts</a>
+              <Link href="/portfolios" className="hover:text-green-600 transition-colors">Portfolios</Link>
+              <Link href="/watchlist" className="hover:text-green-600 transition-colors">Watchlist</Link>
+              <Link href="/alerts" className="hover:text-green-600 transition-colors">Alerts</Link>
             </nav>
           </div>
         </div>
@@ -63,9 +64,11 @@ export default function Home() {
           <p className="text-gray-600 dark:text-gray-400 mb-6">
             Start by creating your first portfolio to track your investments in real-time.
           </p>
-          <button className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
-            Create First Portfolio
-          </button>
+          <Link href="/portfolios/new">
+            <button className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
+              Create First Portfolio
+            </button>
+          </Link>
         </div>
       </main>
     </div>

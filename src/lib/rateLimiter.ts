@@ -88,7 +88,7 @@ export function getIdentifier(request: NextRequest): string {
 
   // Fall back to IP address
   const forwarded = request.headers.get('x-forwarded-for');
-  const ip = forwarded ? forwarded.split(',')[0] : request.ip || '127.0.0.1';
+  const ip = forwarded ? forwarded.split(',')[0] : '127.0.0.1';
   return `ip:${ip}`;
 }
 

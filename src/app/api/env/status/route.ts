@@ -12,7 +12,7 @@ export async function GET() {
   const warnings: string[] = [];
 
   if (validationErrors) {
-    validationErrors.errors.forEach(err => {
+    validationErrors.issues.forEach((err: any) => {
       const message = `${err.path.join('.')}: ${err.message}`;
       if (err.code === 'invalid_type' && err.received === 'undefined') {
         warnings.push(`Missing: ${err.path.join('.')}`);
