@@ -1,4 +1,8 @@
+'use client';
+
 import { TrendingUp, DollarSign, Activity, PieChart } from 'lucide-react';
+import { RealtimeDashboard } from '@/components/dashboard/RealtimeDashboard';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -11,9 +15,10 @@ export default function Home() {
               <h1 className="text-2xl font-bold">Stock Market Dashboard</h1>
             </div>
             <nav className="flex gap-6">
-              <a href="/portfolios" className="hover:text-green-600 transition-colors">Portfolios</a>
-              <a href="/watchlist" className="hover:text-green-600 transition-colors">Watchlist</a>
-              <a href="/alerts" className="hover:text-green-600 transition-colors">Alerts</a>
+              <Link href="/stocks" className="hover:text-green-600 transition-colors">Stocks</Link>
+              <Link href="/portfolios" className="hover:text-green-600 transition-colors">Portfolios</Link>
+              <Link href="/watchlist" className="hover:text-green-600 transition-colors">Watchlist</Link>
+              <Link href="/alerts" className="hover:text-green-600 transition-colors">Alerts</Link>
             </nav>
           </div>
         </div>
@@ -58,14 +63,20 @@ export default function Home() {
           </div>
         </div>
 
+        <div className="mb-12">
+          <RealtimeDashboard />
+        </div>
+
         <div className="bg-white dark:bg-gray-800 rounded-xl p-8 border border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-semibold mb-4">Welcome to Stock Market Dashboard</h2>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
             Start by creating your first portfolio to track your investments in real-time.
           </p>
-          <button className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
-            Create First Portfolio
-          </button>
+          <Link href="/portfolios/new">
+            <button className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
+              Create First Portfolio
+            </button>
+          </Link>
         </div>
       </main>
     </div>
