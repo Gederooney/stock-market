@@ -7,9 +7,6 @@ import { withRateLimit, getIdentifier } from '@/lib/rateLimiter';
 const authMiddleware = NextAuth(authConfig).auth;
 
 export default async function middleware(request: NextRequest) {
-  // Apply auth middleware first
-  const authResponse = await authMiddleware(request, NextResponse.next());
-  
   // Apply rate limiting to API routes
   if (request.nextUrl.pathname.startsWith('/api')) {
     // Determine rate limiter type based on route
@@ -25,12 +22,12 @@ export default async function middleware(request: NextRequest) {
     
     return withRateLimit(
       request,
-      async () => authResponse || NextResponse.next(),
+      async () => NextResponse.next(),
       limiterType
     );
   }
   
-  return authResponse || NextResponse.next();
+  return NextResponse.next();
 }
 
 export const config = {

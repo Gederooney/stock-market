@@ -11,6 +11,7 @@ export default function Home() {
               <h1 className="text-2xl font-bold">Stock Market Dashboard</h1>
             </div>
             <nav className="flex gap-6">
+              <a href="/stocks" className="hover:text-green-600 transition-colors">Stocks</a>
               <a href="/portfolios" className="hover:text-green-600 transition-colors">Portfolios</a>
               <a href="/watchlist" className="hover:text-green-600 transition-colors">Watchlist</a>
               <a href="/alerts" className="hover:text-green-600 transition-colors">Alerts</a>
