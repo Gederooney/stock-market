@@ -28,6 +28,7 @@ export const TimeSeriesSchema = z.object({
     '6. Time Zone': z.string(),
   }),
   'Time Series (5min)': z.record(
+    z.string(),
     z.object({
       '1. open': z.string(),
       '2. high': z.string(),
@@ -37,6 +38,7 @@ export const TimeSeriesSchema = z.object({
     })
   ).optional(),
   'Time Series (Daily)': z.record(
+    z.string(),
     z.object({
       '1. open': z.string(),
       '2. high': z.string(),
