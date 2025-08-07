@@ -1,7 +1,11 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import prisma from '@/lib/prisma';
+import { withErrorHandler } from '@/lib/errorHandler';
+import { ConflictError, ValidationError } from '@/lib/errors';
+import { authLogger } from '@/lib/logger';
+import { withLogging } from '@/lib/apiMiddleware';
 
 const signUpSchema = z.object({
   name: z.string().min(2),
@@ -9,20 +13,27 @@ const signUpSchema = z.object({
   password: z.string().min(6),
 });
 
-export async function POST(request: Request) {
-  try {
+export const POST = withErrorHandler(async (request: NextRequest) => {
+  return withLogging(request, async () => {
     const body = await request.json();
     const validatedData = signUpSchema.parse(body);
+
+    authLogger.info({ 
+      action: 'signup_attempt', 
+      email: validatedData.email 
+    });
 
     const existingUser = await prisma.user.findUnique({
       where: { email: validatedData.email },
     });
 
     if (existingUser) {
-      return NextResponse.json(
-        { message: 'User already exists' },
-        { status: 400 }
-      );
+      authLogger.warn({ 
+        action: 'signup_failed', 
+        reason: 'user_exists',
+        email: validatedData.email 
+      });
+      throw new ConflictError('User with this email already exists');
     }
 
     const hashedPassword = await bcrypt.hash(validatedData.password, 10);
@@ -37,18 +48,12 @@ export async function POST(request: Request) {
 
     const { password, ...userWithoutPassword } = user;
 
-    return NextResponse.json(userWithoutPassword);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { message: 'Invalid data', errors: error.flatten() },
-        { status: 400 }
-      );
-    }
+    authLogger.info({ 
+      action: 'signup_success', 
+      userId: user.id,
+      email: user.email 
+    });
 
-    return NextResponse.json(
-      { message: 'Something went wrong' },
-      { status: 500 }
-    );
-  }
-}
+    return NextResponse.json(userWithoutPassword);
+  });
+});
